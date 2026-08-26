@@ -83,4 +83,6 @@ UI 设置页修改后会自动写回该文件。
 
 ## 许可
 
-详见仓库许可声明。
+本项目基于 [MIT License](LICENSE) 开源。
+
+Copyright (c) 2026 driohcker
