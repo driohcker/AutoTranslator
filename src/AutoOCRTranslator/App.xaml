@@ -1,0 +1,85 @@
+<Application x:Class="AutoOCRTranslator.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- WPF-UI 深色 Fluent 主题（运行时主题切换由 ApplicationThemeManager 覆盖） -->
+                <ui:ThemesDictionary Theme="Dark" />
+                <ui:ControlsDictionary />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- 全局字体：优先系统现代 UI 字体，中文自动回退到微软雅黑 UI -->
+            <FontFamily x:Key="AppFontFamily">Segoe UI Variable Text, Microsoft YaHei UI</FontFamily>
+
+            <!-- 横幅渐变：强调色 → 深蓝（跟随主题强调色） -->
+            <LinearGradientBrush x:Key="BannerGradientBrush" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="0" Color="{DynamicResource SystemAccentColor}" />
+                <GradientStop Offset="1" Color="#E0162C4C" />
+            </LinearGradientBrush>
+
+            <Style x:Key="BannerTitleStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="28" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Foreground" Value="White" />
+            </Style>
+            <Style x:Key="BannerSubtitleStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="Foreground" Value="#CCFFFFFF" />
+            </Style>
+
+            <!-- 预设卡片单选：圆角卡片 + 悬停提亮 + 选中强调色描边 -->
+            <Style x:Key="PresetCardRadioButtonStyle" TargetType="RadioButton">
+                <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="RadioButton">
+                            <Border x:Name="Bd" CornerRadius="8" Padding="14,10" MinHeight="38"
+                                    Background="{DynamicResource ControlFillColorDefaultBrush}"
+                                    BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                                    BorderThickness="1">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+                                </Trigger>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource SystemAccentColorPrimaryBrush}" />
+                                    <Setter TargetName="Bd" Property="BorderThickness" Value="2" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- 分段选择（截图频率等）：更窄的内边距变体 -->
+            <Style x:Key="SegmentRadioButtonStyle" TargetType="RadioButton"
+                   BasedOn="{StaticResource PresetCardRadioButtonStyle}">
+                <Setter Property="Padding" Value="14,6" />
+                <Setter Property="FontSize" Value="12.5" />
+            </Style>
+
+            <!-- 统计/信息 chip -->
+            <Style x:Key="InfoChipStyle" TargetType="Border">
+                <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="10,4" />
+                <Setter Property="Margin" Value="0,0,8,0" />
+            </Style>
+
+            <!-- 自绘卡片：视觉等同 WPF-UI Card，但布局完全可控（Card 内容无法撑满，Grid 场景下改用本样式） -->
+            <Style x:Key="FilledCardStyle" TargetType="Border">
+                <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="16,14" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

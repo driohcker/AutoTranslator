@@ -1,0 +1,496 @@
+<Page x:Class="AutoOCRTranslator.Gui.SettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:settings="clr-namespace:AutoOCRTranslator.Settings"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="设置"
+      FontFamily="{StaticResource AppFontFamily}">
+    <Page.Resources>
+        <!-- 高级设置区左侧标签统一样式 -->
+        <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="0,6" />
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="{DynamicResource TextFillColorDisabledBrush}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Page.Resources>
+
+        <StackPanel Margin="42,16,42,20" MaxWidth="880">
+
+            <!-- ============ 翻译 ============ -->
+            <ui:CardExpander x:Name="ProviderExpander" Margin="0,0,0,12" IsExpanded="False"
+                             Icon="{ui:SymbolIcon Translate24}">
+                <ui:CardExpander.Header>
+                    <StackPanel>
+                        <ui:TextBlock FontTypography="Body" Text="翻译服务" />
+                        <ui:TextBlock x:Name="ProviderSubtitle" FontTypography="Caption"
+                                      Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                      Text="选择翻译提供者；点开填写所需凭据" />
+                    </StackPanel>
+                </ui:CardExpander.Header>
+                <StackPanel Margin="0,4,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <ComboBox x:Name="ProviderCombo" Width="220"
+                                     SelectedValuePath="Tag" SelectionChanged="ProviderCombo_SelectionChanged">
+                            <ComboBoxItem Content="Google 免费网页" Tag="google_free" />
+                            <ComboBoxItem Content="DeepL API" Tag="deep_l" />
+                            <ComboBoxItem Content="腾讯云" Tag="tencent" />
+                            <ComboBoxItem Content="阿里云" Tag="aliyun" />
+                        </ComboBox>
+                        <ui:Button x:Name="TestButton" Content="测试翻译" Icon="{ui:SymbolIcon Play24}"
+                                   Margin="8,0,0,0" Click="TestButton_Click" />
+                    </StackPanel>
+
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock x:Name="ApiKeyLabel" Text="API Key" Style="{StaticResource FieldLabelStyle}"
+                                   Grid.Row="0" Grid.Column="0" />
+                        <ui:PasswordBox x:Name="ApiKeyBox" Grid.Row="0" Grid.Column="1" Margin="0,6"
+                                        PasswordChanged="Credential_Changed" VerticalAlignment="Center" />
+                        <TextBlock x:Name="ApiSecretLabel" Text="API Secret" Style="{StaticResource FieldLabelStyle}"
+                                   Grid.Row="1" Grid.Column="0" />
+                        <ui:PasswordBox x:Name="ApiSecretBox" Grid.Row="1" Grid.Column="1" Margin="0,6"
+                                        PasswordChanged="Credential_Changed" VerticalAlignment="Center" />
+                        <TextBlock x:Name="ProxyLabel" Text="HTTP 代理" Style="{StaticResource FieldLabelStyle}"
+                                   Grid.Row="2" Grid.Column="0" />
+                        <ui:TextBox x:Name="ProxyBox" Grid.Row="2" Grid.Column="1" Margin="0,6"
+                                    PlaceholderText="http://127.0.0.1:7890（仅 Google 免费 / DeepL 需要）"
+                                    TextChanged="AdvancedText_Changed" VerticalAlignment="Center" />
+                    </Grid>
+                </StackPanel>
+            </ui:CardExpander>
+
+            <ui:CardExpander x:Name="DirectionExpander" Margin="0,0,0,12" IsExpanded="False"
+                             Icon="{ui:SymbolIcon LocalLanguage24}">
+                <ui:CardExpander.Header>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <ui:TextBlock FontTypography="Body" Text="翻译方向" />
+                            <ui:TextBlock FontTypography="Caption"
+                                          Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                          Text="常见方向一键切换；选择「自定义」展开搭配源/目标" />
+                        </StackPanel>
+                        <ComboBox x:Name="DirectionCombo" Grid.Column="1" Width="220"
+                                     Margin="12,0,44,0" VerticalAlignment="Center"
+                                     ItemsSource="{x:Static settings:UiPresets.TranslationDirections}"
+                                     DisplayMemberPath="Display" SelectedValuePath="Key"
+                                     SelectionChanged="DirectionCombo_SelectionChanged" />
+                    </Grid>
+                </ui:CardExpander.Header>
+                <StackPanel Margin="0,4,0,0">
+                    <!-- 预设方向提示（选择自定义后隐藏） -->
+                    <ui:TextBlock x:Name="PresetHint" FontTypography="Caption"
+                                  Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                  Text="当前为预设方向，源/目标语言已自动设定；选择「自定义」可自由搭配。" />
+                    <!-- 自定义源/目标语言：仅在方向选择「自定义」时显示，防止预设方向被乱改 -->
+                    <Grid x:Name="CustomLangGrid" Margin="0,10,0,0" Visibility="Collapsed">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="源语言" Style="{StaticResource FieldLabelStyle}" Grid.Row="0" Grid.Column="0" />
+                        <ComboBox x:Name="SourceLangCombo" Grid.Row="0" Grid.Column="1" Width="220" Margin="0,4"
+                                     HorizontalAlignment="Left" VerticalAlignment="Center"
+                                     ItemsSource="{x:Static settings:UiPresets.SourceLanguages}"
+                                     DisplayMemberPath="Display" SelectedValuePath="Code"
+                                     SelectionChanged="LangCombo_SelectionChanged" />
+                        <TextBlock Text="目标语言" Style="{StaticResource FieldLabelStyle}" Grid.Row="1" Grid.Column="0" />
+                        <ComboBox x:Name="TargetLangCombo" Grid.Row="1" Grid.Column="1" Width="220" Margin="0,4"
+                                     HorizontalAlignment="Left" VerticalAlignment="Center"
+                                     ItemsSource="{x:Static settings:UiPresets.TargetLanguages}"
+                                     DisplayMemberPath="Display" SelectedValuePath="Code"
+                                     SelectionChanged="LangCombo_SelectionChanged" />
+                    </Grid>
+                </StackPanel>
+            </ui:CardExpander>
+
+            <ui:CardControl Margin="0,0,0,12" Icon="{ui:SymbolIcon Filter24}">
+                <ui:CardControl.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock Grid.Row="0" FontTypography="Body" Text="语言过滤" />
+                        <ui:TextBlock Grid.Row="1" FontTypography="Caption"
+                                      Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                      Text="只翻译源语言文本（过滤 URL、英文 UI 等）" />
+                        <ui:ToggleSwitch x:Name="FilterSourceLangSwitch" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                                         Margin="12,0,20,0" VerticalAlignment="Center"
+                                         Checked="Toggle_Changed" Unchecked="Toggle_Changed" />
+                    </Grid>
+                </ui:CardControl.Header>
+            </ui:CardControl>
+
+            <ui:CardControl Margin="0,0,0,12" Icon="{ui:SymbolIcon ErrorCircle24}">
+                <ui:CardControl.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock Grid.Row="0" FontTypography="Body" Text="严格过滤" />
+                        <ui:TextBlock Grid.Row="1" FontTypography="Caption"
+                                      Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                      Text="日文只翻译含假名的文本（避免误识别 UI 文字）" />
+                        <ui:ToggleSwitch x:Name="StrictSourceLangSwitch" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                                         Margin="12,0,20,0" VerticalAlignment="Center"
+                                         Checked="Toggle_Changed" Unchecked="Toggle_Changed" />
+                    </Grid>
+                </ui:CardControl.Header>
+            </ui:CardControl>
+
+            <!-- ============ OCR ============ -->
+            <ui:CardExpander Margin="0,0,0,12" IsExpanded="False" Icon="{ui:SymbolIcon ScanText24}">
+                <ui:CardExpander.Header>
+                    <StackPanel>
+                        <ui:TextBlock FontTypography="Body" Text="识别区域" />
+                        <ui:TextBlock FontTypography="Caption"
+                                      Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                      Text="选择要识别的画面区域；「自定义划分」可拖拽框选多个区域" />
+                    </StackPanel>
+                </ui:CardExpander.Header>
+                <StackPanel>
+                    <WrapPanel x:Name="RoiPresetPanel" Margin="0,4,0,0">
+                        <RadioButton Content="字幕对话" Tag="subtitle" GroupName="RoiPreset"
+                                     Style="{StaticResource PresetCardRadioButtonStyle}" Margin="0,0,8,8"
+                                     Checked="RoiPresetRadio_Checked" />
+                        <RadioButton Content="底部全宽" Tag="bottom" GroupName="RoiPreset"
+                                     Style="{StaticResource PresetCardRadioButtonStyle}" Margin="0,0,8,8"
+                                     Checked="RoiPresetRadio_Checked" />
+                        <RadioButton Content="全屏" Tag="full" GroupName="RoiPreset"
+                                     Style="{StaticResource PresetCardRadioButtonStyle}" Margin="0,0,8,8"
+                                     Checked="RoiPresetRadio_Checked" />
+                        <RadioButton Content="自定义矩形" Tag="custom" GroupName="RoiPreset"
+                                     Style="{StaticResource PresetCardRadioButtonStyle}" Margin="0,0,8,8"
+                                     Checked="RoiPresetRadio_Checked" />
+                        <RadioButton Content="自定义划分" Tag="custom_zones" GroupName="RoiPreset"
+                                     Style="{StaticResource PresetCardRadioButtonStyle}" Margin="0,0,8,8"
+                                     Checked="RoiPresetRadio_Checked" />
+                    </WrapPanel>
+
+                    <StackPanel x:Name="ZonesRow" Orientation="Horizontal" Margin="0,10,0,0" Visibility="Collapsed">
+                        <ui:Button x:Name="ZonesButton" Content="划分区域" Icon="{ui:SymbolIcon Cursor24}"
+                                   Click="ZonesButton_Click" />
+                        <TextBlock x:Name="ZonesLabel" Margin="12,0,0,0" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+
+                    <ui:CardExpander x:Name="CustomRoiExpander" Margin="0,8,0,0" IsExpanded="False"
+                                     Visibility="Collapsed" Icon="{ui:SymbolIcon DataBarVertical24}">
+                        <ui:CardExpander.Header>
+                            <ui:TextBlock FontTypography="Body" Text="自定义矩形参数" />
+                        </ui:CardExpander.Header>
+                        <Grid Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="X（0~1）" Style="{StaticResource FieldLabelStyle}" Grid.Row="0" Grid.Column="0" />
+                            <ui:NumberBox x:Name="RoiXBox" Grid.Row="0" Grid.Column="1" Width="200" Margin="0,4"
+                                          Minimum="0" Maximum="1" SmallChange="0.05" MaxDecimalPlaces="2"
+                                          HorizontalAlignment="Left" ValueChanged="AdvancedNumber_Changed" />
+                            <TextBlock Text="Y（0~1）" Style="{StaticResource FieldLabelStyle}" Grid.Row="1" Grid.Column="0" />
+                            <ui:NumberBox x:Name="RoiYBox" Grid.Row="1" Grid.Column="1" Width="200" Margin="0,4"
+                                          Minimum="0" Maximum="1" SmallChange="0.05" MaxDecimalPlaces="2"
+                                          HorizontalAlignment="Left" ValueChanged="AdvancedNumber_Changed" />
+                            <TextBlock Text="宽（0~1）" Style="{StaticResource FieldLabelStyle}" Grid.Row="2" Grid.Column="0" />
+                            <ui:NumberBox x:Name="RoiWBox" Grid.Row="2" Grid.Column="1" Width="200" Margin="0,4"
+                                          Minimum="0" Maximum="1" SmallChange="0.05" MaxDecimalPlaces="2"
+                                          HorizontalAlignment="Left" ValueChanged="AdvancedNumber_Changed" />
+                            <TextBlock Text="高（0~1）" Style="{StaticResource FieldLabelStyle}" Grid.Row="3" Grid.Column="0" />
+                            <ui:NumberBox x:Name="RoiHBox" Grid.Row="3" Grid.Column="1" Width="200" Margin="0,4"
+                                          Minimum="0" Maximum="1" SmallChange="0.05" MaxDecimalPlaces="2"
+                                          HorizontalAlignment="Left" ValueChanged="AdvancedNumber_Changed" />
+                        </Grid>
+                    </ui:CardExpander>
+                </StackPanel>
+            </ui:CardExpander>
+
+            <ui:CardControl Margin="0,0,0,12" Icon="{ui:SymbolIcon Target24}">
+                <ui:CardControl.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock Grid.Row="0" FontTypography="Body" Text="置信度阈值" />
+                        <ui:TextBlock Grid.Row="1" FontTypography="Caption"
+                                      Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                      Text="低于该置信度的识别结果会被丢弃" />
+                        <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                                    Orientation="Horizontal" Margin="12,0,20,0" VerticalAlignment="Center">
+                            <Slider x:Name="DropScoreSlider" Width="220" Minimum="0" Maximum="1"
+                                    TickFrequency="0.05" IsSnapToTickEnabled="True"
+                                    ValueChanged="DropScoreSlider_ValueChanged" />
+                            <TextBlock x:Name="DropScoreValue" Width="52" Margin="12,0,0,0"
+                                       Text="30%" VerticalAlignment="Center" FontSize="13"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                    </Grid>
+                </ui:CardControl.Header>
+            </ui:CardControl>
+
+            <!-- ============ 截图 ============ -->
+            <ui:CardControl Margin="0,0,0,12" Icon="{ui:SymbolIcon Window24}">
+                <ui:CardControl.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock Grid.Row="0" FontTypography="Body" Text="截图模式" />
+                        <ui:TextBlock Grid.Row="1" FontTypography="Caption"
+                                      Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                      Text="目标窗口模式跟随窗口；全屏模式锁定整个屏幕。切换会清空已划分区域" />
+                        <WrapPanel x:Name="CaptureModePanel" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                                   Margin="12,0,20,0" VerticalAlignment="Center">
+                            <RadioButton Content="目标窗口" Tag="TargetWindow" GroupName="CaptureMode"
+                                         Style="{StaticResource PresetCardRadioButtonStyle}" Margin="0,0,8,0"
+                                         Checked="CaptureModeRadio_Checked" />
+                            <RadioButton Content="全屏" Tag="FullScreen" GroupName="CaptureMode"
+                                         Style="{StaticResource PresetCardRadioButtonStyle}" Margin="0,0,8,0"
+                                         Checked="CaptureModeRadio_Checked" />
+                        </WrapPanel>
+                    </Grid>
+                </ui:CardControl.Header>
+            </ui:CardControl>
+
+            <ui:CardControl Margin="0,0,0,12" Icon="{ui:SymbolIcon Camera24}">
+                <ui:CardControl.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock Grid.Row="0" FontTypography="Body" Text="刷新频率" />
+                        <ui:TextBlock Grid.Row="1" FontTypography="Caption"
+                                      Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                      Text="截图识别间隔；越短越灵敏，越长越省电" />
+                        <WrapPanel x:Name="IntervalPanel" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                                   Margin="12,0,20,0" VerticalAlignment="Center">
+                            <RadioButton x:Name="IntervalFastRadio" Content="流畅 100ms" Tag="fast"
+                                         GroupName="CaptureInterval" Style="{StaticResource SegmentRadioButtonStyle}"
+                                         Margin="0,0,8,0" Checked="IntervalRadio_Checked" />
+                            <RadioButton x:Name="IntervalNormalRadio" Content="标准 300ms" Tag="normal"
+                                         GroupName="CaptureInterval" Style="{StaticResource SegmentRadioButtonStyle}"
+                                         Margin="0,0,8,0" Checked="IntervalRadio_Checked" />
+                            <RadioButton x:Name="IntervalEcoRadio" Content="省电 500ms" Tag="eco"
+                                         GroupName="CaptureInterval" Style="{StaticResource SegmentRadioButtonStyle}"
+                                         Margin="0,0,8,0" Checked="IntervalRadio_Checked" />
+                            <RadioButton x:Name="IntervalCustomRadio" Content="自定义" Tag="custom"
+                                         GroupName="CaptureInterval" Style="{StaticResource SegmentRadioButtonStyle}"
+                                         Checked="IntervalRadio_Checked" />
+                        </WrapPanel>
+                    </Grid>
+                </ui:CardControl.Header>
+            </ui:CardControl>
+
+            <ui:CardExpander x:Name="CustomIntervalExpander" Margin="0,0,0,12" IsExpanded="False"
+                             Visibility="Collapsed" Icon="{ui:SymbolIcon Clock24}">
+                <ui:CardExpander.Header>
+                    <ui:TextBlock FontTypography="Body" Text="自定义刷新频率（毫秒）" />
+                </ui:CardExpander.Header>
+                <ui:NumberBox x:Name="IntervalNumberBox" Width="220" Margin="0,10,0,0"
+                              Minimum="50" Maximum="5000" SmallChange="50" MaxDecimalPlaces="0"
+                              SpinButtonPlacementMode="Compact" HorizontalAlignment="Left"
+                              ValueChanged="AdvancedNumber_Changed" />
+            </ui:CardExpander>
+
+            <ui:CardControl Margin="0,0,0,12" Icon="{ui:SymbolIcon ArrowSync24}">
+                <ui:CardControl.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock Grid.Row="0" FontTypography="Body" Text="变化检测" />
+                        <ui:TextBlock Grid.Row="1" FontTypography="Caption"
+                                      Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                      Text="画面无变化时跳过识别，降低 CPU 占用" />
+                        <ui:ToggleSwitch x:Name="ChangeDetectionSwitch" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                                         Margin="12,0,20,0" VerticalAlignment="Center"
+                                         Checked="Toggle_Changed" Unchecked="Toggle_Changed" />
+                    </Grid>
+                </ui:CardControl.Header>
+            </ui:CardControl>
+
+            <!-- ============ 覆盖层 ============ -->
+            <!-- ============ 覆盖层设置：样式 / 背景 / 微调 ============ -->
+            <ui:CardExpander Margin="0,0,0,12" IsExpanded="False" Icon="{ui:SymbolIcon AutoFitHeight24}">
+                <ui:CardExpander.Header>
+                    <StackPanel>
+                        <ui:TextBlock FontTypography="Body" Text="覆盖层设置" />
+                        <ui:TextBlock FontTypography="Caption"
+                                      Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                      Text="样式预设 · 背景色 · 微调（更改后自动保存）" />
+                    </StackPanel>
+                </ui:CardExpander.Header>
+                <StackPanel>
+                    <!-- 细调项 1：样式预设 -->
+                    <TextBlock Text="样式" FontSize="13" FontWeight="SemiBold" Margin="0,16,0,8"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <WrapPanel x:Name="OverlayStylePanel">
+                        <RadioButton Content="清爽白字" Tag="clean" GroupName="OverlayStyle"
+                                     Style="{StaticResource PresetCardRadioButtonStyle}" Margin="0,0,8,8"
+                                     Checked="OverlayStyleRadio_Checked" />
+                        <RadioButton Content="大字醒目" Tag="bold" GroupName="OverlayStyle"
+                                     Style="{StaticResource PresetCardRadioButtonStyle}" Margin="0,0,8,8"
+                                     Checked="OverlayStyleRadio_Checked" />
+                        <RadioButton Content="紧凑小字" Tag="compact" GroupName="OverlayStyle"
+                                     Style="{StaticResource PresetCardRadioButtonStyle}" Margin="0,0,8,8"
+                                     Checked="OverlayStyleRadio_Checked" />
+                        <RadioButton Content="复古米黄" Tag="classic" GroupName="OverlayStyle"
+                                     Style="{StaticResource PresetCardRadioButtonStyle}" Margin="0,0,8,8"
+                                     Checked="OverlayStyleRadio_Checked" />
+                        <RadioButton Content="自定义…" Tag="custom" GroupName="OverlayStyle"
+                                     Style="{StaticResource PresetCardRadioButtonStyle}" Margin="0,0,8,8"
+                                     Checked="OverlayStyleRadio_Checked" />
+                    </WrapPanel>
+
+                    <!-- 细调项 2：背景色 -->
+                    <TextBlock Text="背景" FontSize="13" FontWeight="SemiBold" Margin="0,8,0,8"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <WrapPanel x:Name="OverlayBgPanel">
+                        <RadioButton Content="半透明黑" Tag="bg_default" GroupName="OverlayBg"
+                                     Style="{StaticResource PresetCardRadioButtonStyle}" Margin="0,0,8,8"
+                                     Checked="OverlayBgRadio_Checked" />
+                        <RadioButton Content="深黑" Tag="bg_dark" GroupName="OverlayBg"
+                                     Style="{StaticResource PresetCardRadioButtonStyle}" Margin="0,0,8,8"
+                                     Checked="OverlayBgRadio_Checked" />
+                        <RadioButton Content="暗红" Tag="bg_red" GroupName="OverlayBg"
+                                     Style="{StaticResource PresetCardRadioButtonStyle}" Margin="0,0,8,8"
+                                     Checked="OverlayBgRadio_Checked" />
+                        <RadioButton Content="无背景" Tag="bg_none" GroupName="OverlayBg"
+                                     Style="{StaticResource PresetCardRadioButtonStyle}" Margin="0,0,8,8"
+                                     Checked="OverlayBgRadio_Checked" />
+                        <RadioButton Content="自定义…" Tag="bg_custom" GroupName="OverlayBg"
+                                     Style="{StaticResource PresetCardRadioButtonStyle}" Margin="0,0,8,8"
+                                     Checked="OverlayBgRadio_Checked" />
+                    </WrapPanel>
+
+                    <!-- 细调项 3：微调（字体/字号/字色/背景色/最大宽度） -->
+                    <TextBlock Text="微调" FontSize="13" FontWeight="SemiBold" Margin="0,8,0,8"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <Grid Margin="0,4,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="覆盖层字体" Style="{StaticResource FieldLabelStyle}" Grid.Row="0" Grid.Column="0" />
+                        <ui:TextBox x:Name="FontFamilyBox" Grid.Row="0" Grid.Column="1" Margin="0,6"
+                                    TextChanged="AdvancedText_Changed" VerticalAlignment="Center" />
+
+                        <TextBlock Text="覆盖层字号" Style="{StaticResource FieldLabelStyle}" Grid.Row="1" Grid.Column="0" />
+                        <ui:NumberBox x:Name="FontSizeNumberBox" Grid.Row="1" Grid.Column="1" Width="220" Margin="0,6"
+                                      Minimum="8" Maximum="72" SmallChange="2" MaxDecimalPlaces="0"
+                                      HorizontalAlignment="Left" ValueChanged="AdvancedNumber_Changed" />
+
+                        <TextBlock Text="字体颜色" Style="{StaticResource FieldLabelStyle}" Grid.Row="2" Grid.Column="0" />
+                        <ui:TextBox x:Name="FontColorBox" Grid.Row="2" Grid.Column="1" Width="220" Margin="0,6"
+                                    TextChanged="AdvancedText_Changed" HorizontalAlignment="Left" VerticalAlignment="Center" />
+
+                        <TextBlock Text="背景颜色" Style="{StaticResource FieldLabelStyle}" Grid.Row="3" Grid.Column="0" />
+                        <ui:TextBox x:Name="BgColorBox" Grid.Row="3" Grid.Column="1" Width="220" Margin="0,6"
+                                    TextChanged="AdvancedText_Changed" HorizontalAlignment="Left" VerticalAlignment="Center" />
+
+                        <TextBlock Text="覆盖层最大宽度" Style="{StaticResource FieldLabelStyle}" Grid.Row="4" Grid.Column="0" />
+                        <ui:NumberBox x:Name="OverlayMaxWidthNumberBox" Grid.Row="4" Grid.Column="1" Width="220" Margin="0,6"
+                                      Minimum="100" Maximum="4000" SmallChange="50" MaxDecimalPlaces="0"
+                                      HorizontalAlignment="Left" ValueChanged="AdvancedNumber_Changed" />
+                    </Grid>
+                </StackPanel>
+            </ui:CardExpander>
+
+            <!-- ============ 高级设置：OCR 参数 ============ -->
+            <ui:CardExpander x:Name="AdvancedExpander" Margin="0,0,0,12" IsExpanded="False"
+                             Icon="{ui:SymbolIcon Key24}">
+                <ui:CardExpander.Header>
+                    <StackPanel>
+                        <ui:TextBlock FontTypography="Body" Text="高级设置" />
+                        <ui:TextBlock FontTypography="Caption"
+                                      Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                      Text="OCR 参数（更改后自动保存）。覆盖层样式见上方「覆盖层设置」" />
+                    </StackPanel>
+                </ui:CardExpander.Header>
+                <Grid Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="OCR 最大宽度" Style="{StaticResource FieldLabelStyle}" Grid.Row="0" Grid.Column="0" />
+                    <ui:NumberBox x:Name="MaxWidthNumberBox" Grid.Row="0" Grid.Column="1" Width="220" Margin="0,6"
+                                  Minimum="0" Maximum="4096" SmallChange="32" MaxDecimalPlaces="0"
+                                  HorizontalAlignment="Left" ValueChanged="AdvancedNumber_Changed" />
+
+                    <TextBlock Text="检测最长边" Style="{StaticResource FieldLabelStyle}" Grid.Row="1" Grid.Column="0" />
+                    <ui:NumberBox x:Name="DetLimitNumberBox" Grid.Row="1" Grid.Column="1" Width="220" Margin="0,6"
+                                  Minimum="0" Maximum="4096" SmallChange="32" MaxDecimalPlaces="0"
+                                  HorizontalAlignment="Left" ValueChanged="AdvancedNumber_Changed" />
+                </Grid>
+            </ui:CardExpander>
+        </StackPanel>
+</Page>

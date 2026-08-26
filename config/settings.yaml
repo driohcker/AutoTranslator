@@ -1,0 +1,61 @@
+app:
+  name: AutoOCRTranslator
+  version: 1.0.0
+capture:
+  mode: TargetWindow
+  interval_ms: 300
+  target_window_title: ''
+  change_detection: true
+  change_threshold: 4
+ocr:
+  engine: rapid
+  lang: japan
+  use_gpu: false
+  det_db_thresh: 0.5
+  det_db_box_thresh: 0.5
+  drop_score: 0.3
+  max_width: 640
+  det_limit_side_len: 640
+  roi_preset: custom_zones
+  roi_custom:
+  - 0.1
+  - 0.75
+  - 0.8
+  - 0.2
+  roi_zones:
+  - - 0.0
+    - 0.0
+    - 1.0
+    - 1.0
+translate:
+  provider: google_free
+  source_lang: ja
+  target_lang: zh-CN
+  api_key: ''
+  api_secret: ''
+  proxy: ''
+  timeout: 5
+  max_retries: 1
+  concurrency: 2
+  filter_source_lang: true
+  strict_source_lang: true
+cache:
+  enabled: true
+  db_path: data/cache/translations.db
+  ttl_days: 30
+  active_profile: default
+overlay:
+  font_family: Microsoft YaHei
+  font_size: 18
+  font_color: '#FFFFFF'
+  bg_color: '#80000000'
+  border_color: '#FF000000'
+  max_width: 400
+log_overlay:
+  enabled: true
+  x: 1000
+  y: 100
+  width: 420
+  height: 320
+  opacity: 0.85
+  font_size: 12

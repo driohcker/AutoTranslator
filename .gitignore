@@ -1,0 +1,21 @@
+# .NET 构建产物
+bin/
+obj/
+*.user
+
+# 运行时数据（SQLite 缓存、日志）
+data/
+logs/
+
+# 模型文件（体积大，发布时单独提供）
+models/
+
+# IDE
+.vs/
+*.code-workspace
+
+# 打包产物
+release/
+
+# 开发文档（内部记录，不公开）
+docs/

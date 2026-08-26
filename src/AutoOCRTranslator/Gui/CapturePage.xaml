@@ -1,0 +1,105 @@
+<Page x:Class="AutoOCRTranslator.Gui.CapturePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="识别"
+      FontFamily="{StaticResource AppFontFamily}">
+    <Page.Resources>
+        <DataTemplate x:Key="OcrItemTemplate">
+            <StackPanel Margin="2,5">
+                <TextBlock Text="{Binding Original}"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                           FontSize="12" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding Translated}"
+                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                           FontSize="14" FontWeight="SemiBold"
+                           TextWrapping="Wrap" Margin="0,2,0,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Visible" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Translated}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Translated}" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </StackPanel>
+        </DataTemplate>
+    </Page.Resources>
+
+    <!-- 上下布局：上方取景器式画面预览（深色圆角图框），下方全宽识别结果。
+         滚动由 NavigationView 宿主容器提供（页面内不要包 ScrollViewer，否则会吞掉滚轮事件） -->
+        <Grid Margin="16,12,16,12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="3*" MinHeight="380" />
+                <RowDefinition Height="12" />
+                <RowDefinition Height="2*" MinHeight="240" />
+            </Grid.RowDefinitions>
+
+        <!-- 画面预览：图片等比居中显示在深色圆角图框中，像监视器 -->
+        <Border Grid.Row="0" Style="{StaticResource FilledCardStyle}">
+            <Grid VerticalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Image24" Margin="0,0,8,0"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <StackPanel>
+                        <TextBlock Text="画面预览" Style="{StaticResource SubtitleTextBlockStyle}"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                        <TextBlock Text="当前识别的目标窗口画面"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                   FontSize="12" Margin="0,1,0,0" />
+                    </StackPanel>
+                </StackPanel>
+                <Border Grid.Row="1" Margin="0,10,0,0"
+                        Background="{DynamicResource ControlFillColorDefaultBrush}"
+                        BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                        BorderThickness="1" CornerRadius="8">
+                    <Grid>
+                        <Image x:Name="PreviewImage" Stretch="Uniform" SnapsToDevicePixels="True" />
+                        <StackPanel x:Name="PreviewPlaceholder"
+                                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <ui:SymbolIcon Symbol="ScanCamera24" Width="40" Height="40"
+                                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                           HorizontalAlignment="Center" />
+                            <TextBlock Text="选择窗口并开始识别后显示画面"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                       FontSize="13" Margin="0,10,0,0" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- 识别结果：全宽列表，译文阅读更舒适 -->
+        <Border Grid.Row="2" Style="{StaticResource FilledCardStyle}">
+            <Grid VerticalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="ScanText24" Margin="0,0,8,0"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <StackPanel>
+                        <TextBlock Text="识别结果" Style="{StaticResource SubtitleTextBlockStyle}"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                        <TextBlock Text="原文与译文对照"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                   FontSize="12" Margin="0,1,0,0" />
+                    </StackPanel>
+                </StackPanel>
+                <ListBox x:Name="OcrResultList" Grid.Row="1" Margin="0,10,0,0"
+                         ItemTemplate="{StaticResource OcrItemTemplate}" />
+            </Grid>
+        </Border>
+        </Grid>
+</Page>

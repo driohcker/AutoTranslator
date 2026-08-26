@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AutoOCRTranslator/AutoOCRTranslator.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AutoOCRTranslator.Tests/AutoOCRTranslator.Tests.csproj" />
+  </Folder>
+</Solution>

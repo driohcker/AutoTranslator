@@ -1,0 +1,93 @@
+<ui:FluentWindow x:Class="AutoOCRTranslator.Gui.MainWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:pages="clr-namespace:AutoOCRTranslator.Gui"
+                 xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                 Title="AutoOCRTranslator" Height="720" Width="1080"
+                 ExtendsContentIntoTitleBar="True"
+                 WindowBackdropType="Auto"
+                 FontFamily="{StaticResource AppFontFamily}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- 标题栏：图标 + 标题 + 右侧主题切换 / 最小化到托盘 -->
+        <ui:TitleBar x:Name="AppTitleBar" Grid.Row="0" Title="AutoOCRTranslator">
+            <ui:TitleBar.Icon>
+                <ui:SymbolIcon Symbol="Translate24" Width="96" Height="96"
+                               Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+            </ui:TitleBar.Icon>
+            <ui:TitleBar.TrailingContent>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+                    <ui:Button x:Name="ThemeButton" Width="40" Height="32" Margin="0,4,0,0"
+                               Background="Transparent" BorderBrush="Transparent" CornerRadius="0"
+                               Icon="{ui:SymbolIcon WeatherMoon16}" ToolTip="切换深浅主题"
+                               Click="ThemeButton_Click" />
+                    <ui:Button Width="40" Height="32" Margin="0,4,0,0"
+                               Background="Transparent" BorderBrush="Transparent" CornerRadius="0"
+                               Icon="{ui:SymbolIcon FullScreenMinimize16}" ToolTip="最小化到托盘"
+                               Click="TrayButton_Click" />
+                </StackPanel>
+            </ui:TitleBar.TrailingContent>
+        </ui:TitleBar>
+
+        <!-- 侧边导航：启动 / 识别 / 设置 + footer 关于 -->
+        <ui:NavigationView x:Name="NavView" Grid.Row="1"
+                           IsBackButtonVisible="Collapsed"
+                           IsPaneToggleVisible="True"
+                           IsTopSeparatorVisible="False"
+                           IsFooterSeparatorVisible="False"
+                           OpenPaneLength="160">
+            <ui:NavigationView.MenuItems>
+                <ui:NavigationViewItem Content="启动" Tag="home"
+                                       NavigationCacheMode="Enabled"
+                                       TargetPageType="{x:Type pages:HomePage}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Home24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="识别" Tag="capture"
+                                       NavigationCacheMode="Enabled"
+                                       TargetPageType="{x:Type pages:CapturePage}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="ScanCamera24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="设置" Tag="settings"
+                                       NavigationCacheMode="Enabled"
+                                       TargetPageType="{x:Type pages:SettingsPage}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Settings24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="缓存" Tag="cache"
+                                       NavigationCacheMode="Enabled"
+                                       TargetPageType="{x:Type pages:CachePage}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Database24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+            </ui:NavigationView.MenuItems>
+            <ui:NavigationView.FooterMenuItems>
+                <ui:NavigationViewItem Content="关于" Tag="about"
+                                       NavigationCacheMode="Enabled"
+                                       TargetPageType="{x:Type pages:AboutPage}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Info24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+            </ui:NavigationView.FooterMenuItems>
+
+            <ui:NavigationView.ContentOverlay>
+                <!-- IsHitTestVisible=False：覆盖层不拦截页面滚轮/点击（Snackbar 自动消失，无需交互） -->
+                <Grid IsHitTestVisible="False">
+                    <ui:SnackbarPresenter x:Name="AppSnackbar"
+                                          HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                          Margin="0,0,16,16" />
+                </Grid>
+            </ui:NavigationView.ContentOverlay>
+        </ui:NavigationView>
+    </Grid>
+</ui:FluentWindow>

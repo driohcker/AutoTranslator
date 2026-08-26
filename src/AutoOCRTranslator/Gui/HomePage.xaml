@@ -1,0 +1,240 @@
+<Page x:Class="AutoOCRTranslator.Gui.HomePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="启动"
+      FontFamily="{StaticResource AppFontFamily}">
+    <Page.Resources>
+        <DataTemplate x:Key="WindowItemTemplate">
+            <StackPanel Orientation="Horizontal" Margin="0,2">
+                <ui:SymbolIcon Symbol="Window24" Width="16" Height="16" Margin="0,0,8,0"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                               VerticalAlignment="Center" />
+                <TextBlock Text="{Binding Title}" VerticalAlignment="Center"
+                           TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+        </DataTemplate>
+    </Page.Resources>
+
+        <StackPanel Margin="42,16,42,16" MaxWidth="980">
+
+            <!-- 横幅：低调卡片式，强调色图标作品牌点缀，避免大色块喧宾夺主 -->
+            <Border Height="76" CornerRadius="10" Style="{StaticResource FilledCardStyle}" Padding="20,0">
+                <Grid>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Width="40" Height="40" CornerRadius="10"
+                                Background="{DynamicResource ControlFillColorSecondaryBrush}">
+                            <ui:SymbolIcon Symbol="ScanText24" Width="22" Height="22"
+                                           Foreground="{DynamicResource SystemAccentColorPrimaryBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
+                            <TextBlock x:Name="AppNameText" FontSize="18" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                            <TextBlock Text="截图 · OCR · 实时翻译 · 覆盖层" FontSize="12" Margin="0,2,0,0"
+                                       Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                        </StackPanel>
+                    </StackPanel>
+                    <Border Style="{StaticResource InfoChipStyle}" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <TextBlock x:Name="VersionText" FontSize="12"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- 截图模式 -->
+            <ui:CardControl Margin="0,16,0,0" Icon="{ui:SymbolIcon ArrowSync24}">
+                <ui:CardControl.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock Grid.Row="0" FontTypography="Body" Text="截图模式" />
+                        <ui:TextBlock Grid.Row="1" FontTypography="Caption"
+                                      Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                      Text="目标窗口模式跟随窗口；全屏模式锁定整个屏幕。切换会清空已划分区域" />
+                        <WrapPanel x:Name="CaptureModePanel" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                                   Margin="12,0,20,0" VerticalAlignment="Center">
+                            <RadioButton Content="目标窗口" Tag="TargetWindow" GroupName="HomeCaptureMode"
+                                         Style="{StaticResource SegmentRadioButtonStyle}" Margin="0,0,8,0"
+                                         Checked="CaptureModeRadio_Checked" />
+                            <RadioButton Content="全屏" Tag="FullScreen" GroupName="HomeCaptureMode"
+                                         Style="{StaticResource SegmentRadioButtonStyle}"
+                                         Checked="CaptureModeRadio_Checked" />
+                        </WrapPanel>
+                    </Grid>
+                </ui:CardControl.Header>
+            </ui:CardControl>
+
+            <!-- 目标窗口 + 启动 -->
+            <ui:CardControl Margin="0,12,0,0" Icon="{ui:SymbolIcon Window24}">
+                <ui:CardControl.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock Grid.Row="0" FontTypography="Body" Text="目标窗口" />
+                        <ui:TextBlock x:Name="TargetWindowSubtitle" Grid.Row="1" FontTypography="Caption"
+                                      Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                      Text="选择要识别并翻译的游戏或应用窗口" />
+                        <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                                    Orientation="Horizontal" Margin="12,0,20,0" VerticalAlignment="Center">
+                            <ComboBox x:Name="WindowCombo" Width="280"
+                                         ItemTemplate="{StaticResource WindowItemTemplate}"
+                                         SelectionChanged="WindowCombo_SelectionChanged" />
+                            <ui:Button x:Name="RefreshButton" Width="34" Height="34" Margin="8,0,0,0"
+                                       Icon="{ui:SymbolIcon ArrowClockwise20}" ToolTip="刷新窗口列表"
+                                       Click="RefreshButton_Click" />
+                            <ui:Button x:Name="StartButton" MinWidth="150" Height="36" Margin="12,0,0,0"
+                                       IsEnabled="False" Appearance="Primary" Click="StartButton_Click" />
+                        </StackPanel>
+                    </Grid>
+                </ui:CardControl.Header>
+            </ui:CardControl>
+
+            <!-- 当前配置摘要 + 运行状态 -->
+            <ui:Card Margin="0,12,0,0" Padding="20,16">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Info24" Width="18" Height="18" Margin="0,0,8,0"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                        <TextBlock Text="当前配置" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    </StackPanel>
+                    <!-- 配置摘要：定义列表式两列布局，左标签右值，每行一项，扫读不费眼 -->
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0,0,24,8">
+                            <ui:SymbolIcon Symbol="ArrowSync24" Width="15" Height="15" Margin="0,0,8,0"
+                                           Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                           VerticalAlignment="Center" />
+                            <TextBlock Text="截图模式" FontSize="12.5"
+                                       Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                        <TextBlock x:Name="ModeValue" Grid.Row="0" Grid.Column="1" Text="—" FontSize="13"
+                                   FontWeight="Medium" Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                   Margin="0,0,0,8" VerticalAlignment="Center" />
+
+                        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Margin="0,0,24,8">
+                            <ui:SymbolIcon Symbol="Target24" Width="15" Height="15" Margin="0,0,8,0"
+                                           Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                           VerticalAlignment="Center" />
+                            <TextBlock Text="识别区域" FontSize="12.5"
+                                       Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                        <TextBlock x:Name="RoiValue" Grid.Row="1" Grid.Column="1" Text="—" FontSize="13"
+                                   FontWeight="Medium" Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                   Margin="0,0,0,8" VerticalAlignment="Center" />
+
+                        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Margin="0,0,24,8">
+                            <ui:SymbolIcon Symbol="LocalLanguage24" Width="15" Height="15" Margin="0,0,8,0"
+                                           Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                           VerticalAlignment="Center" />
+                            <TextBlock Text="翻译方向" FontSize="12.5"
+                                       Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                        <TextBlock x:Name="DirectionValue" Grid.Row="2" Grid.Column="1" Text="—" FontSize="13"
+                                   FontWeight="Medium" Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                   Margin="0,0,0,8" VerticalAlignment="Center" />
+
+                        <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="0" Margin="0,0,24,0">
+                            <ui:SymbolIcon Symbol="Camera24" Width="15" Height="15" Margin="0,0,8,0"
+                                           Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                           VerticalAlignment="Center" />
+                            <TextBlock Text="刷新频率" FontSize="12.5"
+                                       Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                        <TextBlock x:Name="IntervalValue" Grid.Row="3" Grid.Column="1" Text="—" FontSize="13"
+                                   FontWeight="Medium" Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                   VerticalAlignment="Center" />
+                    </Grid>
+
+                    <Border Height="1" Background="{DynamicResource DividerStrokeColorDefaultBrush}" Margin="0,14,0,12" />
+
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="ArrowSync24" Width="16" Height="16" Margin="0,0,8,0"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                       VerticalAlignment="Center" />
+                        <TextBlock x:Name="StatusLine" Text="尚未开始识别"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <!-- 运行指标面板：4 项统计统一展示，数值大字强调 + 标签小字，整体感优于散落 chip -->
+                    <Border Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                            BorderBrush="{DynamicResource DividerStrokeColorDefaultBrush}" BorderThickness="1"
+                            CornerRadius="8" Margin="0,12,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="1" Width="1" HorizontalAlignment="Left" Margin="0,10"
+                                    Background="{DynamicResource DividerStrokeColorDefaultBrush}" />
+                            <Border Grid.Column="2" Width="1" HorizontalAlignment="Left" Margin="0,10"
+                                    Background="{DynamicResource DividerStrokeColorDefaultBrush}" />
+                            <Border Grid.Column="3" Width="1" HorizontalAlignment="Left" Margin="0,10"
+                                    Background="{DynamicResource DividerStrokeColorDefaultBrush}" />
+
+                            <StackPanel Grid.Column="0" HorizontalAlignment="Center" Margin="0,14,6,14">
+                                <TextBlock x:Name="ElapsedValue" Text="—" FontSize="20" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource SystemAccentColorPrimaryBrush}"
+                                           HorizontalAlignment="Center" />
+                                <TextBlock Text="耗时 ms" FontSize="11"
+                                           Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                           HorizontalAlignment="Center" Margin="0,6,0,0" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center" Margin="6,14,6,14">
+                                <TextBlock x:Name="BlocksValue" Text="—" FontSize="20" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                           HorizontalAlignment="Center" />
+                                <TextBlock Text="文本块" FontSize="11"
+                                           Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                           HorizontalAlignment="Center" Margin="0,6,0,0" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" HorizontalAlignment="Center" Margin="6,14,6,14">
+                                <TextBlock x:Name="PendingValue" Text="—" FontSize="20" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                           HorizontalAlignment="Center" />
+                                <TextBlock Text="待翻译" FontSize="11"
+                                           Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                           HorizontalAlignment="Center" Margin="0,6,0,0" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="3" HorizontalAlignment="Center" Margin="6,14,14,14">
+                                <TextBlock x:Name="SkippedValue" Text="—" FontSize="20" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                           HorizontalAlignment="Center" />
+                                <TextBlock Text="跳过帧" FontSize="11"
+                                           Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                           HorizontalAlignment="Center" Margin="0,6,0,0" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </ui:Card>
+        </StackPanel>
+</Page>

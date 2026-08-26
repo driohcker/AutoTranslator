@@ -1,0 +1,81 @@
+<Page x:Class="AutoOCRTranslator.Gui.AboutPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="关于"
+      FontFamily="{StaticResource AppFontFamily}">
+    <StackPanel Margin="42,16,42,16" MaxWidth="880">
+
+        <!-- 应用信息横幅 -->
+        <Border Height="120" CornerRadius="10" Background="{StaticResource BannerGradientBrush}">
+            <Grid>
+                <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="32,0,0,22">
+                    <TextBlock x:Name="AppNameText" Style="{StaticResource BannerTitleStyle}" />
+                    <TextBlock x:Name="VersionText" Style="{StaticResource BannerSubtitleStyle}" Margin="0,3,0,0" />
+                </StackPanel>
+                <ui:SymbolIcon Symbol="ScanText24" Width="64" Height="64"
+                               HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,56,0"
+                               Foreground="#3DFFFFFF" />
+            </Grid>
+        </Border>
+
+        <!-- 关于：应用简介与技术栈 -->
+        <ui:CardExpander Margin="0,16,0,12" IsExpanded="False"
+                         Icon="{ui:SymbolIcon Info24}">
+            <ui:CardExpander.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="Body" Text="关于" />
+                    <ui:TextBlock FontTypography="Caption"
+                                  Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                  Text="应用简介与技术栈" />
+                </StackPanel>
+            </ui:CardExpander.Header>
+            <StackPanel Margin="0,4,0,0">
+                <TextBlock Text="自动 OCR 翻译工具：截取目标窗口画面，本地 OCR 识别文本，异步翻译后以覆盖层显示译文。"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                           FontSize="13" TextWrapping="Wrap" LineHeight="22" />
+                <TextBlock x:Name="TechStackText"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                           FontSize="13" TextWrapping="Wrap" Margin="0,10,0,0" LineHeight="22" />
+            </StackPanel>
+        </ui:CardExpander>
+
+        <!-- 数据目录 -->
+        <ui:CardExpander Margin="0,0,0,12" IsExpanded="False"
+                         Icon="{ui:SymbolIcon Folder24}">
+            <ui:CardExpander.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="Body" Text="数据目录" />
+                    <ui:TextBlock FontTypography="Caption"
+                                  Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                  Text="配置文件与翻译缓存存放位置" />
+                </StackPanel>
+            </ui:CardExpander.Header>
+            <StackPanel Margin="0,4,0,0">
+                <TextBlock Text="当前数据目录：" FontSize="12"
+                           Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                <TextBlock x:Name="BaseDirText" FontSize="13" TextWrapping="Wrap" Margin="0,4,0,0"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+            </StackPanel>
+        </ui:CardExpander>
+
+        <!-- 小贴士 -->
+        <ui:CardExpander Margin="0,0,0,12" IsExpanded="False"
+                         Icon="{ui:SymbolIcon Lightbulb24}">
+            <ui:CardExpander.Header>
+                <StackPanel>
+                    <ui:TextBlock FontTypography="Body" Text="小贴士" />
+                    <ui:TextBlock FontTypography="Caption"
+                                  Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                  Text="使用提示" />
+                </StackPanel>
+            </ui:CardExpander.Header>
+            <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                       FontSize="13" TextWrapping="Wrap" LineHeight="22">
+                <Run Text="· 关闭主窗口会最小化到托盘，双击托盘图标即可恢复；" />
+                <Run Text="· 点击标题栏右侧的托盘按钮也可最小化到托盘；" />
+                <Run Text="· 主题切换（浅色/深色）仅在本次运行内生效，重启后恢复深色。" />
+            </TextBlock>
+        </ui:CardExpander>
+    </StackPanel>
+</Page>
