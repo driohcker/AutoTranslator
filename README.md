@@ -14,6 +14,11 @@
 - **区域选择器**：多显示器全屏覆盖选区，目标窗口边界以蓝色虚线标注，拖拽预览超出目标窗口时显示虚线提示
 - **托盘驻留**：最小化到系统托盘，后台持续运行
 
+## 截图展示
+<img width="700" height="467" alt="1" src="https://github.com/user-attachments/assets/b32915c9-3ad9-4e77-9a53-0d942dfa4633" />
+<img width="700" height="467" alt="2" src="https://github.com/user-attachments/assets/7694d309-0d8e-4dfe-b33e-2cab9b4fb860" />
+
+
 ## 技术栈
 
 | 领域 | 选型 |
